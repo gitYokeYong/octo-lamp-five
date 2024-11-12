@@ -19,37 +19,50 @@
       5. Add a countdown timer - when the time is up, end the quiz, display the score and highlight the correct answers
 *************************** */
 
-window.addEventListener('DOMContentLoaded', () => {
-  const start = document.querySelector('#start');
-  start.addEventListener('click', function (e) {
-    document.querySelector('#quizBlock').style.display = 'block';
-    start.style.display = 'none';
+window.addEventListener("DOMContentLoaded", () => {
+  const start = document.querySelector("#start");
+  const submitButton = document.querySelector("#btnSubmit");
+  let timerInterval; // Declare the interval variable globally
+
+  start.addEventListener("click", function () {
+    document.querySelector("#quizBlock").style.display = "block";
+    start.style.display = "none";
   });
   // quizArray QUESTIONS & ANSWERS
   // q = QUESTION, o = OPTIONS, a = CORRECT ANSWER
   // Basic ideas from https://code-boxx.com/simple-javascript-quiz/
   const quizArray = [
     {
-      q: 'Which is the third planet from the sun?',
-      o: ['Saturn', 'Earth', 'Pluto', 'Mars'],
+      q: "Which is the third planet from the sun?",
+      o: ["Saturn", "Earth", "Pluto", "Mars"],
       a: 1, // array index 1 - so Earth is the correct answer here
     },
     {
-      q: 'Which is the largest ocean on Earth?',
-      o: ['Atlantic Ocean', 'Indian Ocean', 'Arctic Ocean', 'Pacific Ocean'],
+      q: "Which is the largest ocean on Earth?",
+      o: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
       a: 3,
     },
     {
-      q: 'What is the capital of Australia',
-      o: ['Sydney', 'Canberra', 'Melbourne', 'Perth'],
+      q: "What is the capital of Australia",
+      o: ["Sydney", "Canberra", "Melbourne", "Perth"],
       a: 1,
+    },
+    {
+      q: "Which planet is known as the Red Planet?",
+      o: ["Venus", "Mars", "Jupiter", "Saturn"],
+      a: 1, // Mars is the correct answer
+    },
+    {
+      q: "What is the largest animal on Earth?",
+      o: ["Elephant", "Blue Whale", "Giraffe", "Shark"],
+      a: 1, // Blue Whale is the correct answer
     },
   ];
 
   // function to Display the quiz questions and answers from the object
   const displayQuiz = () => {
-    const quizWrap = document.querySelector('#quizWrap');
-    let quizDisplay = '';
+    const quizWrap = document.querySelector("#quizWrap");
+    let quizDisplay = "";
     quizArray.map((quizItem, index) => {
       quizDisplay += `<ul class="list-group">
                    Q - ${quizItem.q}
@@ -59,31 +72,73 @@ window.addEventListener('DOMContentLoaded', () => {
                     <li class="list-group-item"  id="li_${index}_3"><input type="radio" name="radio${index}" id="radio_${index}_3"> ${quizItem.o[3]}</li>
                     </ul>
                     <div>&nbsp;</div>`;
-      quizWrap.innerHTML = quizDisplay;
     });
+    quizWrap.innerHTML = quizDisplay;
   };
 
   // Calculate the score
   const calculateScore = () => {
     let score = 0;
-    quizArray.map((quizItem, index) => {
+    // Loop through each quiz question
+    quizArray.forEach((quizItem, index) => {
       for (let i = 0; i < 4; i++) {
-        //highlight the li if it is the correct answer
-        let li = `li_${index}_${i}`;
-        let r = `radio_${index}_${i}`;
-        liElement = document.querySelector('#' + li);
-        radioElement = document.querySelector('#' + r);
+        let li = `li_${index}_${i}`; // List item (answer option) ID
+        let r = `radio_${index}_${i}`; // Radio button (answer option) ID
+        let liElement = document.querySelector(`#${li}`); // Get the li element
+        let radioElement = document.querySelector(`#${r}`); // Get the radio button element
 
-        if (quizItem.a == i) {
-          //change background color of li element here
+        // Highlight the correct answer
+        if (quizItem.a === i) {
+          liElement.style.backgroundColor = "lightgreen"; // Correct answer highlighted
+        } else {
+          liElement.style.backgroundColor = ""; // Reset background for wrong answers
         }
 
-        if (radioElement.checked) {
-          // code for task 1 goes here
+        // Check if the selected answer is correct
+        if (radioElement.checked && quizItem.a === i) {
+          score++; // Increment score for correct answer
         }
       }
     });
+
+    // Display score
+    document.querySelector("#score").textContent = `Your score is: ${score}`;
   };
+
+  // Add event listener for Submit button
+  document.querySelector("#btnSubmit").addEventListener("click", function () {
+    calculateScore(); // Calculate and display the score
+    document.querySelector("#btnSubmit").disabled = true; // Disable submit button
+  });
+
+  // Add event listener for Reset button
+  document.querySelector("#btnReset").addEventListener("click", function () {
+    window.location.reload(); // Reload the page to reset the quiz
+  });
+
+  // Timer functionality
+  let timeLeft = 60; // 60 seconds countdown
+  function startTimer() {
+    timerInterval = setInterval(function () {
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      document.querySelector(
+        "#time"
+      ).textContent = `Time Remaining: ${minutes}:${
+        seconds < 10 ? "0" + seconds : seconds
+      }`;
+
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval); // Stop the timer when it reaches 0
+        calculateScore(); // Automatically submit the quiz when time runs out
+        document.querySelector("#btnSubmit").disabled = true; // Disable submit button
+      }
+      timeLeft--;
+    }, 1000);
+  }
+
+  // Start the timer when quiz is displayed
+  startTimer();
 
   // call the displayQuiz function
   displayQuiz();
