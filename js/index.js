@@ -17,7 +17,7 @@
       4. Reload the page when the reset button is clicked (hint: search window.location)
 
       5. Add a countdown timer - when the time is up, end the quiz, display the score and highlight the correct answers
-*************************** */
+*************************** *make some changes/
 
 window.addEventListener("DOMContentLoaded", () => {
   const start = document.querySelector("#start");
